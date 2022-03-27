@@ -11,9 +11,9 @@ interface LoginForm{
 
 
 export const Login = () => {
-    let key = ""
+
     let navigate = useNavigate();
-    const [ messageError, setMessageError ] = useState("")
+    const [ errorMessage, setErrorMessage ] = useState("")
     const { formulario, handleChange } = useForm<LoginForm>({
         username: "",
         password: "",
@@ -28,18 +28,25 @@ export const Login = () => {
                 method: 'POST',
                 body: JSON.stringify(formulario),
                 headers: {
-                'Content-Type': 'application/json',
-                    }
+                    'Content-Type': 'application/json',
+                }
         })
-        .then(response => { 
-            console.log(response.ok)
-            if(response.ok) 
-                navigate('Dashboard');
-            else if(response.status === 401)    
-                setMessageError("Nombre de usuario o contraseña incorrectos")
+        .then(response => {
+            //validaciones 
+            if(response.status === 401){
+                setErrorMessage("Nombre de usuario o contraseña incorrectos")
+            }
+
+            //todo OK
+            return response.json()
+        })
+        .then(data => {
+            localStorage.setItem("token", data["access"])
+            localStorage.setItem("refresh_token", data["refresh"])
+            navigate('Dashboard');
         })
         .catch(error =>{
-            setMessageError("Error en el ingreso, favor contactar a un administrador del sistema") 
+            setErrorMessage("Error en el ingreso, favor contactar a un administrador del sistema") 
         })
     }
 
@@ -54,8 +61,8 @@ export const Login = () => {
                 <form>
                     <h3>Iniciar Sesión</h3>
                     <div className="form-group">
-                        <label>Email</label>
-                        <input type="email" name="username" className="form-control" placeholder="Enter email"  value={username} onChange={ handleChange} />
+                        <label>Nombre de usuario</label>
+                        <input type="email" name="username" className="form-control" placeholder="Nombre usuario"  value={username} onChange={ handleChange} />
                     </div>              
                     <div className="form-group">
                         <label>Password</label>
@@ -71,7 +78,7 @@ export const Login = () => {
                     <p className="forgot-password text-right">
                         Forgot <a href="#">password?</a>
                     </p>
-                    { messageError && <div className="error">{ messageError }</div> }
+                    { errorMessage && <div className="error">{ errorMessage }</div> }
                 </form>
                 </div>
                 

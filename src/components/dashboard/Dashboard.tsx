@@ -1,10 +1,17 @@
 
 
 export const Dashboard = () => {
+    if(localStorage.getItem("token") === null){
+        window.location.href = "/"
+    }
 
     return(
         <>
-            <h1>Dashboard</h1>
+        <div className="container"> 
+        <h1>Dashboard</h1>
+        
+        </div>
+            
         </>
     )
 }
